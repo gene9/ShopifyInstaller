@@ -6,20 +6,13 @@ namespace ShopifyInstaller.Settings
     {
         public string ApiKey { get; set; }
         public string SecretKey { get; set; }
-        public string TokenUrl { get; set; }
         public string RedirectUri { get; set; }
 
         public string Scopes { get; set; }
-        public string ScriptWebHookUrl { get; set; }
         public string Event { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
         public string ScriptUrl { get; set; }
-        public bool AutoUninstall { get; set; }
-        public string LoadMethod { get; set; }
-        public string Location { get; set; }
-        public string visibility { get; set; }
-        public string Kind { get; set; }
+        public string SuccessUri { get; set; }
+        public string ErrorUri { get; set; }
     }
 
     public static class ShopifyConfigExtenstions

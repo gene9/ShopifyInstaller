@@ -3,7 +3,6 @@ using Microsoft.Extensions.Options;
 using ShopifyInstaller.Models;
 using ShopifyInstaller.Settings;
 using ShopifySharp;
-using ShopifySharp.Enums;
 using System;
 using System.Threading.Tasks;
 
@@ -22,9 +21,12 @@ namespace ShopifyInstaller.Servcices
 
         public async Task<bool> InstallAsync(string shopUrl, string accessCode)
         {
+            ShopService shopService = null;
+            string accessToken = null;
+
             try
             {
-                string accessToken = await AuthorizationService.Authorize(accessCode, shopUrl, _shopifyConfig.ApiKey, _shopifyConfig.SecretKey);
+                accessToken = await AuthorizationService.Authorize(accessCode, shopUrl, _shopifyConfig.ApiKey, _shopifyConfig.SecretKey);
 
                 _logger.LogInformation($"accessToken: {accessToken}");
 
@@ -33,7 +35,7 @@ namespace ShopifyInstaller.Servcices
                     return false;
                 }
 
-                var shopService = new ShopService(shopUrl, accessToken);
+                shopService = new ShopService(shopUrl, accessToken);
                 Shop shop = await shopService.GetAsync();
 
                 string scriptUrl = _shopifyConfig.ScriptUrl;
@@ -52,6 +54,45 @@ namespace ShopifyInstaller.Servcices
                     Src = scriptUrl,
                     Event = _shopifyConfig.Event
                 });
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "");
+
+                await TryUninstallAsync(shopService, accessToken);
+
+                return false;
+            }
+        }
+
+        private async Task<bool> TryUninstallAsync(ShopService service, string accessToken)
+        {
+            try
+            {
+                if (service != null && !string.IsNullOrWhiteSpace(accessToken))
+                {
+                    await service.UninstallAppAsync();
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "");
+                return false;
+            }
+        }
+
+        public async Task<bool> UninstallAsync(string shopUrl, string accessCode)
+        {
+            try
+            {
+                string accessToken = await AuthorizationService.Authorize(accessCode, shopUrl, _shopifyConfig.ApiKey, _shopifyConfig.SecretKey);
+                var service = new ShopService(shopUrl, accessToken);
+
+                await service.UninstallAppAsync();
 
                 return true;
             }

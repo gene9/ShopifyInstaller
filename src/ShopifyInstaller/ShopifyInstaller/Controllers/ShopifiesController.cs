@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using ShopifyInstaller.Models;
+using Microsoft.Extensions.Options;
 using ShopifyInstaller.Servcices;
+using ShopifyInstaller.Settings;
 using System;
 using System.Threading.Tasks;
 
@@ -13,10 +14,12 @@ namespace ShopifyInstaller.Controllers
     {
         private readonly IShopifyService _shopifyService;
         private readonly ILogger<ShopifiesController> _logger;
+        private readonly ShopifyConfig _shopifyConfig;
         private readonly IHostingEnvironment _env;
 
-        public ShopifiesController(IShopifyService shopifyService, ILogger<ShopifiesController> logger, IHostingEnvironment env)
+        public ShopifiesController(IOptions<ShopifyConfig> shopifyConfigAccessor, IShopifyService shopifyService, ILogger<ShopifiesController> logger, IHostingEnvironment env)
         {
+            _shopifyConfig = shopifyConfigAccessor?.Value ?? throw new ArgumentNullException(nameof(shopifyConfigAccessor));
             _shopifyService = shopifyService ?? throw new ArgumentNullException(nameof(shopifyService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _env = env;
@@ -36,23 +39,14 @@ namespace ShopifyInstaller.Controllers
 
             _logger.LogInformation($"code: {code}");
 
-            await _shopifyService.InstallAsync(shop, code);
+            var result = await _shopifyService.InstallAsync(shop, code);
 
-            var content = @"<iframe id=""chatigy-iframe"" scrolling=""no"" src=""https://chatigy.justinchasez.space/chatbox?tenantDomain=genk.vn""></iframe>";
-
-            return new ContentResult()
+            if (!result)
             {
-                Content = content,
-                ContentType = "text/html",
-            };
-        }
+                return Redirect(_shopifyConfig.ErrorUri);
+            }
 
-        [HttpGet("uninstall")]
-        public async Task<IActionResult> Uninstall()
-        {
-            _logger.LogInformation("uninstalling...");
-
-            return Ok();
+            return Redirect(_shopifyConfig.SuccessUri);
         }
     }
 }
