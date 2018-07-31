@@ -1,0 +1,12 @@
+src/BigcommerceInstaller/.vs/
+src/BigcommerceInstaller/BigcommerceInstaller/bin/
+src/BigcommerceInstaller/BigcommerceInstaller/obj/
+src/BigcommerceInstaller/BigcommerceInstaller/BigcommerceInstaller.csproj.user
+src/BigcommerceInstaller/BigcommerceInstaller/Logs/
+src/_debug/
+src/ShopifyInstaller/.vs/ShopifyInstaller/v15/.suo
+src/ShopifyInstaller/.vs/
+src/ShopifyInstaller/ShopifyInstaller/bin/
+src/ShopifyInstaller/ShopifyInstaller/Logs/
+src/ShopifyInstaller/ShopifyInstaller/obj/
+src/ShopifyInstaller/ShopifyInstaller/ShopifyInstaller.csproj.user
